@@ -8,6 +8,21 @@ x -> roll
 y -> pitch
 z -> yaw
 
+dependence
+- unitree_legged_sdk v3.8.0
+- unitree_ros 
+- ros noetic
+
+配置完以上依赖后在~/.bashrc后添加
+```bash
+# Go1 gazebo
+source ~/go1_ws/devel/setup.zsh
+source /usr/share/gazebo/setup.sh
+export UNITREE_LEGGED_SDK_PATH=path-to/unitree_legged_sdk
+#amd64, arm32, arm64
+export UNITREE_PLATFORM="amd64"
+```
+
 ```bash
 # compile
 catkin_make --only-pkg-with-deps go1_mpc_control
