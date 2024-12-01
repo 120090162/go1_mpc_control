@@ -6,4 +6,3 @@
 
     <node pkg="go1_mpc_control" type="$(arg type)_go1_ctrl" name="$(arg type)_go1_ctrl" output="screen"/>
 </launch>
-哦

@@ -48,7 +48,6 @@ int main(int argc, char **argv)
     std::thread compute_foot_forces_grf_thread([&]()
                                                {
         // prepare variables to monitor time and control the while loop
-        ros::Time start = ros::Time::now();
         ros::Time prev = ros::Time::now();
         ros::Time now = ros::Time::now();
         ros::Duration dt(0);

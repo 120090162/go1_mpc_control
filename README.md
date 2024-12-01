@@ -7,3 +7,12 @@ world frame is target on whole movement
 x -> roll
 y -> pitch
 z -> yaw
+
+```bash
+# compile
+catkin_make --only-pkg-with-deps go1_mpc_control
+# run gazebo
+roslaunch unitree_gazebo normal.launch rname:=go1 wname:=earth
+# run mpc control
+roslaunch go1_mpc_control go1_ctrl.launch type:=gazebo solver_type:=mpc
+```

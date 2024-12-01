@@ -34,7 +34,11 @@ public:
                                        Eigen::Vector3d foot_pos_final,
                                        double terrain_pitch_angle); // 地形陡峭角度
 
-    bool reset_foot_pos_curve() { curve_constructed = false; } // return true
+    bool reset_foot_pos_curve()
+    {
+        curve_constructed = false;
+        return true;
+    } // return true
 
 private:
     double bezier_curve(double t, const std::vector<double> &P);

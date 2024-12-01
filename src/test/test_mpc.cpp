@@ -144,7 +144,8 @@ int main(int, char **)
     //        std::cout << "lb size: " << mpc_solver.lb.size() << std::endl;
 
     solver.initSolver();
-    solver.solve();
+    // solver.solve();
+    solver.solveProblem();
 
     Eigen::VectorXd solution = solver.getSolution();
 

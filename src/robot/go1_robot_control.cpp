@@ -275,8 +275,6 @@ void Go1RobotControl::generate_swing_legs_ctrl(Go1CtrlStates &state, double dt)
     state.foot_pos_cur = foot_pos_cur;
 
     // detect early contact
-    bool last_contacts[NUM_LEG];
-
     for (int i = 0; i < NUM_LEG; ++i)
     {
         if (state.gait_counter(i) <= state.counter_per_swing * 1.5)
@@ -291,7 +289,6 @@ void Go1RobotControl::generate_swing_legs_ctrl(Go1CtrlStates &state, double dt)
         }
 
         // actual contact
-        last_contacts[i] = state.contacts[i];
         state.contacts[i] = state.plan_contacts[i] || state.early_contacts[i];
 
         // record recent contact position if the foot is in touch with the ground
@@ -478,7 +475,8 @@ Eigen::Matrix<double, 3, NUM_LEG> Go1RobotControl::compute_grf(Go1CtrlStates &st
         auto t1 = std::chrono::high_resolution_clock::now();
         solver.initSolver();
         auto t2 = std::chrono::high_resolution_clock::now();
-        solver.solve();
+        // solver.solve();
+        solver.solveProblem();
         auto t3 = std::chrono::high_resolution_clock::now();
 
         std::chrono::duration<double, std::milli> ms_double_1 = t2 - t1;
@@ -594,7 +592,8 @@ Eigen::Matrix<double, 3, NUM_LEG> Go1RobotControl::compute_grf(Go1CtrlStates &st
             solver.updateUpperBound(mpc_solver.ub);
         }
         auto t5 = std::chrono::high_resolution_clock::now();
-        solver.solve();
+        // solver.solve();
+        solver.solveProblem();
         auto t6 = std::chrono::high_resolution_clock::now();
 
         std::chrono::duration<double, std::milli> ms_double_1 = t2 - t1;

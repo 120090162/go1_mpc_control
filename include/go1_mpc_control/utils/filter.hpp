@@ -15,7 +15,7 @@ class MovingWindowFilter
 public:
     MovingWindowFilter() {}
 
-    MovingWindowFilter(int window_size) : window_size_(window_size)
+    MovingWindowFilter(size_t window_size) : window_size_(window_size)
     {
         assert(window_size_ > 0);
         sum_ = 0.0;
@@ -48,7 +48,7 @@ public:
     }
 
 private:
-    int window_size_;
+    size_t window_size_;
     double sum_, correction_; // 求和与修正值
     std::deque<double> value_deque_;
 
