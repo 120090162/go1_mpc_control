@@ -89,8 +89,8 @@ Eigen::Vector3d BezierUtils::get_foot_pos_curve(float t,
                                 foot_pos_final(2),
                                 foot_pos_final(2),
                                 foot_pos_final(2)};
-    bezierZ[1] += FOOT_SWING_CLEARANCE1;
-    bezierZ[2] += FOOT_SWING_CLEARANCE2 + 0.5 * sin(terrain_pitch_angle);
+    bezierZ[1] += FOOT_SWING_CLEARANCE1;                                  // 增加足部摆动的间隙
+    bezierZ[2] += FOOT_SWING_CLEARANCE2 + 0.5 * sin(terrain_pitch_angle); // 根据地形的俯仰角调整间隙
     foot_pos_target(2) = bezier_curve(t, bezierZ);
 
     return foot_pos_target;

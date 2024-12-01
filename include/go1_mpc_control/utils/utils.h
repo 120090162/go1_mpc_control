@@ -16,7 +16,7 @@ public:
     // skew symmetric matrix
     static Eigen::Matrix3d skew(Eigen::Vector3d vec);
     static Eigen::Matrix3d pseudo_inverse(const Eigen::Matrix3d &mat);
-    static double cal_dihedral_angle(Eigen::Vector3d surf_coef_1, Eigen::Vector3d surf_coef_2);
+    static double cal_dihedral_angle(Eigen::Vector3d surf_coef_1, Eigen::Vector3d surf_coef_2); // 计算两个平面之间的二面角
 };
 
 class BezierUtils
