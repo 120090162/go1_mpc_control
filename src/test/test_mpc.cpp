@@ -65,7 +65,7 @@ int main(int, char **)
         state.root_pos[0], state.root_pos[1], state.root_pos[2],
         state.root_ang_vel[0], state.root_ang_vel[1], state.root_ang_vel[2],
         state.root_lin_vel[0], state.root_lin_vel[1], state.root_lin_vel[2],
-        -9.8;
+        -ROBOT_GRAVITY;
 
     // initialize the desired mpc states trajectory
     state.root_lin_vel_d_world = state.root_rot_mat * state.root_lin_vel_d;
@@ -85,7 +85,7 @@ int main(int, char **)
             state.root_lin_vel_d_world[0],
             state.root_lin_vel_d_world[1],
             state.root_lin_vel_d_world[2],
-            -9.8;
+            -ROBOT_GRAVITY;
     }
 
     // a single A_c is computed for the entire reference trajectory using the average value of each euler angles during the reference trajectory

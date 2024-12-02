@@ -3,6 +3,8 @@ refer to A1-QP-MPC-Controller
 robot frame is target on relative movement
 world frame is target on whole movement
 状态估计部分参考mit源码https://blog.csdn.net/Everlasting_Aa/article/details/120920668
+pd控制与轨迹规划部分参考https://blog.csdn.net/weixin_45728705/article/details/120817881
+
 
 x -> roll
 y -> pitch

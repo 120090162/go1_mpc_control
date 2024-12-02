@@ -3,13 +3,10 @@
 Go1RobotControl::Go1RobotControl()
 {
     std::cout << "init Go1RobotControl" << std::endl;
-    // init QP solver
     // init some parameters
+    // init QP solver
     Q.diagonal() << 1.0, 1.0, 1.0, 400.0, 400.0, 100.0;
     R = 1e-3;
-    mu = 0.7;
-    F_min = 0;
-    F_max = 180;
     hessian.resize(3 * NUM_LEG, 3 * NUM_LEG);
     gradient.resize(3 * NUM_LEG);
     linearMatrix.resize(NUM_LEG + 4 * NUM_LEG, 3 * NUM_LEG);
@@ -18,34 +15,39 @@ Go1RobotControl::Go1RobotControl()
     upperBound.resize(NUM_LEG + 4 * NUM_LEG);
     upperBound.setZero();
 
+    spline_time.setZero();
+
     // init mpc skip counter
     mpc_init_counter = 0;
 
-    // constraint matrix fixed
+    // init friction coefficient
+    mu = 0.7;
+    F_min = 0;
+    F_max = 180;
+
+    // constraint matrix fixed [F_zi(4), F_xi(4x2), F_yi(4x2)]
     for (int i = 0; i < NUM_LEG; ++i)
     {
         // extract F_zi
         linearMatrix.insert(i, 2 + i * 3) = 1;
         // friction pyramid
-        // 1. F_xi < uF_zi
+        // 1. F_xi < uF_zi ===> F_xi -uF_zi < 0
         linearMatrix.insert(NUM_LEG + i * 4, i * 3) = 1;
         linearMatrix.insert(NUM_LEG + i * 4, 2 + i * 3) = -mu;
-        lowerBound(NUM_LEG + i * 4) = -OsqpEigen::INFTY;
-        // 2. F_xi > -uF_zi    ===> -F_xi -uF_zi < 0
+        lowerBound(NUM_LEG + i * 4) = -OsqpEigen::INFTY; // 避免足部力Fz为负
+        // 2. F_xi > -uF_zi ===> -F_xi -uF_zi < 0
         linearMatrix.insert(NUM_LEG + i * 4 + 1, i * 3) = -1;
         linearMatrix.insert(NUM_LEG + i * 4 + 1, 2 + i * 3) = -mu;
         lowerBound(NUM_LEG + i * 4 + 1) = -OsqpEigen::INFTY;
-        // 3. F_yi < uF_zi
+        // 3. F_yi < uF_zi ===> F_yi -uF_zi < 0
         linearMatrix.insert(NUM_LEG + i * 4 + 2, 1 + i * 3) = 1;
         linearMatrix.insert(NUM_LEG + i * 4 + 2, 2 + i * 3) = -mu;
         lowerBound(NUM_LEG + i * 4 + 2) = -OsqpEigen::INFTY;
-        // 4. -F_yi > uF_zi
+        // 4. F_yi > -uF_zi ===> -F_yi -uF_zi < 0
         linearMatrix.insert(NUM_LEG + i * 4 + 3, 1 + i * 3) = -1;
         linearMatrix.insert(NUM_LEG + i * 4 + 3, 2 + i * 3) = -mu;
         lowerBound(NUM_LEG + i * 4 + 3) = -OsqpEigen::INFTY;
     }
-    // debug linearMatrix
-    //    std::cout << Eigen::MatrixXd(linearMatrix) << std::endl;
 
     terrain_angle_filter = MovingWindowFilter(100);
     for (int i = 0; i < NUM_LEG; ++i)
@@ -65,9 +67,9 @@ Go1RobotControl::Go1RobotControl(ros::NodeHandle &_nh) : Go1RobotControl()
     for (int i = 0; i < NUM_LEG; ++i)
     {
         std::string id = std::to_string(i);
-        std::string start_topic = "/isaac_go1/foot" + id + "/start_pos";
-        std::string end_topic = "/isaac_go1/foot" + id + "/end_pos";
-        std::string path_topic = "/isaac_go1/foot" + id + "/swing_path";
+        std::string start_topic = "/gazebo_go1/foot" + id + "/start_pos";
+        std::string end_topic = "/gazebo_go1/foot" + id + "/end_pos";
+        std::string path_topic = "/gazebo_go1/foot" + id + "/swing_path";
 
         pub_foot_start[i] = nh.advertise<visualization_msgs::Marker>(start_topic, 100);
         pub_foot_end[i] = nh.advertise<visualization_msgs::Marker>(end_topic, 100);
@@ -162,9 +164,9 @@ void Go1RobotControl::update_plan(Go1CtrlStates &state, double dt)
         // movement_mode == 1, walk
         for (int i = 0; i < NUM_LEG; ++i)
         {
-            state.gait_counter(i) = state.gait_counter(i) + state.gait_counter_speed(i);
-            state.gait_counter(i) = std::fmod(state.gait_counter(i), state.counter_per_gait);
-            if (state.gait_counter(i) <= state.counter_per_swing)
+            state.gait_counter(i) += state.gait_counter_speed(i);
+            state.gait_counter(i) = std::fmod(state.gait_counter(i), state.counter_per_gait); // %
+            if (state.gait_counter(i) <= state.counter_per_swing)                             // stand
             {
                 state.plan_contacts[i] = true;
             }
@@ -176,27 +178,28 @@ void Go1RobotControl::update_plan(Go1CtrlStates &state, double dt)
     }
 
     // update foot plan: state.foot_pos_target_world
-    Eigen::Vector3d lin_vel_world = state.root_lin_vel;                             // world frame linear velocity
-    Eigen::Vector3d lin_vel_rel = state.root_rot_mat_z.transpose() * lin_vel_world; // robot body frame linear velocity
+    Eigen::Vector3d lin_vel_rel = state.root_rot_mat_z.transpose() * state.root_lin_vel; // robot body frame linear velocity, 一般只考虑水平旋转即yaw轴旋转
 
     // Raibert Heuristic, calculate foothold position
+    // delta_x = sqrt(abs(z) / g) * (vx - vx_d) + 1/2 * T_swing * vx_d
+    // delta_y = sqrt(abs(z) / g) * (vy - vy_d) + 1/2 * T_swing * vy_d
     state.foot_pos_target_rel = state.default_foot_pos;
     for (int i = 0; i < NUM_LEG; ++i)
     {
         double delta_x =
-            std::sqrt(std::abs(state.default_foot_pos(2)) / 9.8) * (lin_vel_rel(0) - state.root_lin_vel_d(0)) +
+            std::sqrt(std::abs(state.default_foot_pos(2)) / ROBOT_GRAVITY) * (lin_vel_rel(0) - state.root_lin_vel_d(0)) +
             ((state.counter_per_swing / state.gait_counter_speed(i)) * state.control_dt) / 2.0 *
                 state.root_lin_vel_d(0);
         double delta_y =
-            std::sqrt(std::abs(state.default_foot_pos(2)) / 9.8) * (lin_vel_rel(1) - state.root_lin_vel_d(1)) +
+            std::sqrt(std::abs(state.default_foot_pos(2)) / ROBOT_GRAVITY) * (lin_vel_rel(1) - state.root_lin_vel_d(1)) +
             ((state.counter_per_swing / state.gait_counter_speed(i)) * state.control_dt) / 2.0 *
                 state.root_lin_vel_d(1);
-
+        // constrain delta_x, delta_y
         if (delta_x < -FOOT_DELTA_X_LIMIT)
         {
             delta_x = -FOOT_DELTA_X_LIMIT;
         }
-        if (delta_x > FOOT_DELTA_X_LIMIT)
+        else if (delta_x > FOOT_DELTA_X_LIMIT)
         {
             delta_x = FOOT_DELTA_X_LIMIT;
         }
@@ -204,7 +207,7 @@ void Go1RobotControl::update_plan(Go1CtrlStates &state, double dt)
         {
             delta_y = -FOOT_DELTA_Y_LIMIT;
         }
-        if (delta_y > FOOT_DELTA_Y_LIMIT)
+        else if (delta_y > FOOT_DELTA_Y_LIMIT)
         {
             delta_y = FOOT_DELTA_Y_LIMIT;
         }
@@ -220,25 +223,12 @@ void Go1RobotControl::update_plan(Go1CtrlStates &state, double dt)
 void Go1RobotControl::generate_swing_legs_ctrl(Go1CtrlStates &state, double dt)
 {
     state.joint_torques.setZero();
-
-    // get current foot pos and target foot pose
-    Eigen::Matrix<double, 3, NUM_LEG> foot_pos_cur;
-    Eigen::Matrix<double, 3, NUM_LEG> foot_vel_cur;
-    Eigen::Matrix<float, 1, NUM_LEG> spline_time;
-    spline_time.setZero();
-    Eigen::Matrix<double, 3, NUM_LEG> foot_pos_target;
     foot_pos_target.setZero();
-    Eigen::Matrix<double, 3, NUM_LEG> foot_vel_target;
     foot_vel_target.setZero();
-    Eigen::Matrix<double, 3, NUM_LEG> foot_pos_error;
-    Eigen::Matrix<double, 3, NUM_LEG> foot_vel_error;
-
-    // the foot force of swing foot and stance foot, both are in robot frame
-    Eigen::Matrix<double, 3, NUM_LEG> foot_forces_kin;
-    Eigen::Matrix<double, 3, NUM_LEG> foot_forces_grf;
 
     for (int i = 0; i < NUM_LEG; ++i)
     {
+        // TODO: make sure use root_rot_mat_z instead of root_rot_mat
         foot_pos_cur.block<3, 1>(0, i) = state.root_rot_mat_z.transpose() * state.foot_pos_abs.block<3, 1>(0, i);
 
         // from foot_pos_cur to foot_pos_final computes an intermediate point using BezierUtils
@@ -269,6 +259,7 @@ void Go1RobotControl::generate_swing_legs_ctrl(Go1CtrlStates &state, double dt)
 
         foot_pos_error.block<3, 1>(0, i) = foot_pos_target.block<3, 1>(0, i) - foot_pos_cur.block<3, 1>(0, i);
         foot_vel_error.block<3, 1>(0, i) = foot_vel_target.block<3, 1>(0, i) - foot_vel_cur.block<3, 1>(0, i);
+        // pd torque control, 修正力
         foot_forces_kin.block<3, 1>(0, i) = foot_pos_error.block<3, 1>(0, i).cwiseProduct(state.kp_foot.block<3, 1>(0, i)) +
                                             foot_vel_error.block<3, 1>(0, i).cwiseProduct(state.kd_foot.block<3, 1>(0, i));
     }
@@ -277,10 +268,12 @@ void Go1RobotControl::generate_swing_legs_ctrl(Go1CtrlStates &state, double dt)
     // detect early contact
     for (int i = 0; i < NUM_LEG; ++i)
     {
+        // 判断是否处于摆动后期阶段
         if (state.gait_counter(i) <= state.counter_per_swing * 1.5)
         {
             state.early_contacts[i] = false;
         }
+        // 判断在摆动后期阶段是否有足部力大于阈值
         if (!state.plan_contacts[i] &&
             (state.gait_counter(i) > state.counter_per_swing * 1.5) &&
             (state.foot_force(i) > FOOT_FORCE_LOW))
@@ -294,8 +287,8 @@ void Go1RobotControl::generate_swing_legs_ctrl(Go1CtrlStates &state, double dt)
         // record recent contact position if the foot is in touch with the ground
         if (state.contacts[i])
         {
-            //            state.foot_pos_recent_contact.block<3, 1>(0, i) = state.root_rot_mat.transpose() * (state.foot_pos_world.block<3, 1>(0, i));
-            //            state.foot_pos_recent_contact.block<3, 1>(0, i) = state.foot_pos_abs.block<3, 1>(0, i);
+            // state.foot_pos_recent_contact.block<3, 1>(0, i) = state.root_rot_mat.transpose() * (state.foot_pos_world.block<3, 1>(0, i));
+            // state.foot_pos_recent_contact.block<3, 1>(0, i) = state.foot_pos_abs.block<3, 1>(0, i);
             state.foot_pos_recent_contact.block<3, 1>(0, i)
                 << recent_contact_x_filter[i].CalculateAverage(state.foot_pos_abs(0, i)),
                 recent_contact_y_filter[i].CalculateAverage(state.foot_pos_abs(1, i)),
@@ -310,9 +303,9 @@ void Go1RobotControl::generate_swing_legs_ctrl(Go1CtrlStates &state, double dt)
 
 void Go1RobotControl::compute_joint_torques(Go1CtrlStates &state)
 {
-    Eigen::Matrix<double, NUM_DOF, 1> joint_torques;
     joint_torques.setZero();
     mpc_init_counter++;
+    mpc_init_counter = std::min(mpc_init_counter, 10000); // avoid overflow
     // for the first 10 ticks, just return zero torques.
     if (mpc_init_counter < 10)
     {
@@ -333,8 +326,8 @@ void Go1RobotControl::compute_joint_torques(Go1CtrlStates &state)
             else
             {
                 // swing leg
-                Eigen::Vector3d force_tgt = state.km_foot.cwiseProduct(state.foot_forces_kin.block<3, 1>(0, i));
-                joint_torques.segment<3>(i * 3) = jac.lu().solve(force_tgt); // jac * tau = F
+                Eigen::Vector3d force_tgt = state.km_foot.cwiseProduct(state.foot_forces_kin.block<3, 1>(0, i)); // 考虑足部质量和惯性的参数矩阵
+                joint_torques.segment<3>(i * 3) = jac.lu().solve(force_tgt);                                     // jac * tau = F
             }
         }
         // gravity compensation
@@ -357,13 +350,13 @@ Eigen::Matrix<double, 3, NUM_LEG> Go1RobotControl::compute_grf(Go1CtrlStates &st
     Eigen::Vector3d euler_error = state.root_euler_d - state.root_euler;
 
     // limit euler error to pi/2
-    if (euler_error(2) > 3.1415926 * 1.5)
+    if (euler_error(2) > PI * 1.5)
     {
-        euler_error(2) = state.root_euler_d(2) - 3.1415926 * 2 - state.root_euler(2);
+        euler_error(2) = state.root_euler_d(2) - PI * 2 - state.root_euler(2);
     }
-    else if (euler_error(2) < -3.1415926 * 1.5)
+    else if (euler_error(2) < -PI * 1.5)
     {
-        euler_error(2) = state.root_euler_d(2) + 3.1415926 * 2 - state.root_euler(2);
+        euler_error(2) = state.root_euler_d(2) + PI * 2 - state.root_euler(2);
     }
 
     // only do terrain adaptation in MPC
@@ -409,15 +402,16 @@ Eigen::Matrix<double, 3, NUM_LEG> Go1RobotControl::compute_grf(Go1CtrlStates &st
         }
 
         std_msgs::Float64 terrain_angle_msg;
-        terrain_angle_msg.data = terrain_angle * (180 / 3.1415926);
+        terrain_angle_msg.data = terrain_angle * (180 / PI);
         pub_terrain_angle.publish(terrain_angle_msg); // publish in deg
-        std::cout << "desire pitch in deg: " << state.root_euler_d[1] * (180 / 3.1415926) << std::endl;
+        std::cout << "desire pitch in deg: " << state.root_euler_d[1] * (180 / PI) << std::endl;
         std::cout << "terrain angle: " << terrain_angle << std::endl;
 
         // save calculated terrain pitch angle
         // TODO: limit terrain pitch angle to -30 to 30?
         state.terrain_pitch_angle = terrain_angle;
     }
+    // solve grf using QP or MPC
     if (state.stance_leg_control_type == 0)
     { // 0: QP
         // desired acc in world frame
@@ -433,7 +427,7 @@ Eigen::Matrix<double, 3, NUM_LEG> Go1RobotControl::compute_grf(Go1CtrlStates &st
             state.root_ang_vel_d - state.root_rot_mat.transpose() * state.root_ang_vel);
 
         // add gravity
-        root_acc(2) += state.robot_mass * 9.8;
+        root_acc(2) += state.robot_mass * ROBOT_GRAVITY;
 
         // Create inverse inertia matrix
         Eigen::Matrix<double, 6, DIM_GRF> inertia_inv;
@@ -503,7 +497,7 @@ Eigen::Matrix<double, 3, NUM_LEG> Go1RobotControl::compute_grf(Go1CtrlStates &st
             state.root_pos[0], state.root_pos[1], state.root_pos[2],
             state.root_ang_vel[0], state.root_ang_vel[1], state.root_ang_vel[2],
             state.root_lin_vel[0], state.root_lin_vel[1], state.root_lin_vel[2],
-            -9.8;
+            -ROBOT_GRAVITY;
 
         // previously we use dt passed by outer thread. It turns out that this dt is not stable on hardware.
         // if the thread is slowed down, dt becomes large, then MPC will output very large force and torque value
@@ -535,7 +529,7 @@ Eigen::Matrix<double, 3, NUM_LEG> Go1RobotControl::compute_grf(Go1CtrlStates &st
                 state.root_lin_vel_d_world[0],
                 state.root_lin_vel_d_world[1],
                 0,
-                -9.8;
+                -ROBOT_GRAVITY;
         }
 
         // a single A_c is computed for the entire reference trajectory

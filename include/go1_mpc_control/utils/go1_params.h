@@ -7,6 +7,8 @@
 #define GRF_UPDATE_FREQUENCY 2.5        // ms
 #define MAIN_UPDATE_FREQUENCY 2.5       // ms
 #define HARDWARE_FEEDBACK_FREQUENCY 2.0 // ms
+#define PI 3.1415926
+#define ROBOT_GRAVITY 9.81
 
 // constant define
 // joy stick command interprate

@@ -80,7 +80,7 @@ void Go1BasicEKF::update_estimation(Go1CtrlStates &state, double dt)
     B.block<3, 3>(3, 0) = dt * eye3;
 
     // control input u is Ra + ag
-    Eigen::Vector3d u = state.root_rot_mat * state.imu_acc + Eigen::Vector3d(0, 0, -9.81);
+    Eigen::Vector3d u = state.root_rot_mat * state.imu_acc + Eigen::Vector3d(0, 0, -ROBOT_GRAVITY);
 
     // contact estimation, do something very simple first
     if (state.movement_mode == 0)
@@ -100,8 +100,8 @@ void Go1BasicEKF::update_estimation(Go1CtrlStates &state, double dt)
         }
     }
     // update Q
-    Q.block<3, 3>(0, 0) = PROCESS_NOISE_PIMU * dt / 20.0 * eye3;       // IMU P
-    Q.block<3, 3>(3, 3) = PROCESS_NOISE_VIMU * dt * 9.8 / 20.0 * eye3; // IMU V
+    Q.block<3, 3>(0, 0) = PROCESS_NOISE_PIMU * dt / 20.0 * eye3;                 // IMU P
+    Q.block<3, 3>(3, 3) = PROCESS_NOISE_VIMU * dt * ROBOT_GRAVITY / 20.0 * eye3; // IMU V
     // update Q R for legs not in contact
     for (int i = 0; i < NUM_LEG; ++i)
     {

@@ -328,7 +328,7 @@ public:
 	int stance_leg_control_type; // 0: QP, 1: MPC
 	int movement_mode;			 // 0: standstill, 1: start to locomote
 	int use_terrain_adapt;
-	double control_dt = MAIN_UPDATE_FREQUENCY / 1000.0;
+	double control_dt = MAIN_UPDATE_FREQUENCY / 1000.0; // control loop period
 
 	// period of one gait cycle
 	double plan_dt;
@@ -345,7 +345,7 @@ public:
 	// control target
 	Eigen::Vector3d root_pos_d;
 	Eigen::Vector3d root_euler_d;
-	Eigen::Vector3d root_lin_vel_d;
+	Eigen::Vector3d root_lin_vel_d; // desired robot frame linear velocity
 	Eigen::Vector3d root_lin_vel_d_world;
 	Eigen::Vector3d root_ang_vel_d;
 	Eigen::Vector3d root_ang_vel_d_world;
@@ -373,7 +373,7 @@ public:
 	Eigen::Vector3d root_euler;
 	Eigen::Matrix3d root_rot_mat;
 	Eigen::Matrix3d root_rot_mat_z;
-	Eigen::Vector3d root_lin_vel;
+	Eigen::Vector3d root_lin_vel; // world frame linear velocity
 	Eigen::Vector3d root_ang_vel;
 	Eigen::Vector3d root_acc;
 
@@ -405,7 +405,7 @@ public:
 	Eigen::Matrix<double, 3, NUM_LEG> foot_vel_world;
 	Eigen::Matrix<double, 3, NUM_LEG> foot_vel_abs;
 	Eigen::Matrix<double, 3, NUM_LEG> foot_vel_rel;
-	Eigen::Matrix<double, 12, 12> j_foot;
+	Eigen::Matrix<double, 12, 12> j_foot; // jacobian matrix for four legs
 
 	bool contacts[NUM_LEG];		  // flag to decide leg in the stance/swing mode
 	bool plan_contacts[NUM_LEG];  // planed flag for stance/swing mode
@@ -437,7 +437,7 @@ public:
 	Eigen::Vector3d imu_ang_vel;
 
 	// state estimation
-	bool estimated_contacts[NUM_LEG]; // true if the estimator thinks the foot has contact
+	bool estimated_contacts[NUM_LEG]; // true if the estimator thinks the foot has contact, which means the trust of the contact sensor is high
 	// debug
 	// Eigen::Vector3d estimated_root_pos;
 	// Eigen::Vector3d estimated_root_vel;

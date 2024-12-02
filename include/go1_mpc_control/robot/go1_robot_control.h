@@ -31,7 +31,7 @@ public:
 
     Go1RobotControl(ros::NodeHandle &_nh);
 
-    void update_plan(Go1CtrlStates &state, double dt);
+    void update_plan(Go1CtrlStates &state, double dt); // gait plan
 
     void generate_swing_legs_ctrl(Go1CtrlStates &state, double dt);
 
@@ -44,22 +44,40 @@ public:
 private:
     BezierUtils bezierUtils[NUM_LEG];
 
-    Eigen::Matrix<double, 6, 1> root_acc;
+    Eigen::Matrix<double, 6, 1> root_acc; // linear acceleration and angular acceleration
     // allocate the problem weight matrices
-    Eigen::DiagonalMatrix<double, 6> Q;
-    double R;
     // ground friction coefficient
-    double mu;
+    double mu; // 摩擦系数
     double F_min;
     double F_max;
     // allocate QP problem matrices and vectors
-    Eigen::SparseMatrix<double> hessian;
-    Eigen::VectorXd gradient;
-    Eigen::SparseMatrix<double> linearMatrix;
-    Eigen::VectorXd lowerBound;
-    Eigen::VectorXd upperBound;
+    // 1/2 * x^T * H * x + g^T * x
+    // subject to:
+    // lb <= A * x <= ub
+    Eigen::DiagonalMatrix<double, 6> Q;
+    double R;
+    Eigen::SparseMatrix<double> hessian;      // H
+    Eigen::VectorXd gradient;                 // g
+    Eigen::SparseMatrix<double> linearMatrix; // A
+    Eigen::VectorXd lowerBound;               // lb
+    Eigen::VectorXd upperBound;               // ub
 
     OsqpEigen::Solver solver;
+
+    // get current foot pos and target foot pose
+    Eigen::Matrix<double, 3, NUM_LEG> foot_pos_cur;
+    Eigen::Matrix<double, 3, NUM_LEG> foot_vel_cur;
+    Eigen::Matrix<float, 1, NUM_LEG> spline_time; // time for bezier curve
+    Eigen::Matrix<double, 3, NUM_LEG> foot_pos_target;
+    Eigen::Matrix<double, 3, NUM_LEG> foot_vel_target;
+    Eigen::Matrix<double, 3, NUM_LEG> foot_pos_error;
+    Eigen::Matrix<double, 3, NUM_LEG> foot_vel_error;
+
+    // the foot force of swing foot and stance foot, both are in robot frame
+    Eigen::Matrix<double, 3, NUM_LEG> foot_forces_kin;
+    Eigen::Matrix<double, 3, NUM_LEG> foot_forces_grf;
+
+    Eigen::Matrix<double, NUM_DOF, 1> joint_torques;
 
     // add a number of ROS debug topics
     ros::NodeHandle nh;
