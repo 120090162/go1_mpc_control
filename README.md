@@ -15,6 +15,10 @@ dependence
 - unitree_ros 
 - ros noetic
 
+```bash
+fishrc
+```
+
 配置完以上依赖后在~/.bashrc后添加
 ```bash
 # Go1 gazebo
