@@ -16,6 +16,7 @@ dependence
 - ros noetic
 
 ```bash
+# ros install
 fishrc
 ```
 
