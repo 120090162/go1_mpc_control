@@ -18,6 +18,7 @@ dependence
 ```bash
 # ros install
 fishrc
+pip install julia
 ```
 
 配置完以上依赖后在~/.bashrc后添加
