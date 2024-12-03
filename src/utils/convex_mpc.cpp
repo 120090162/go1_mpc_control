@@ -181,6 +181,7 @@ void ConvexMpc::calculate_qp_mats(Go1CtrlStates &state)
     Eigen::Matrix<double, 13 * PLAN_HORIZON, 1> tmp_vec = A_qp * state.mpc_states;
     tmp_vec -= state.mpc_states_d;
     gradient = B_qp.transpose() * Q * tmp_vec;
+    //这两部分都没有*2，原文中是由*2的（虽然不影响最终结果）
 
     // calculate lower bound and upper bound
     fz_min = 0;
