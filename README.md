@@ -1,9 +1,15 @@
 refer to A1-QP-MPC-Controller
 https://github.com/ShuoYangRobotics/A1-QP-MPC-Controller.git
+
 robot frame is target on relative movement
+
 world frame is target on whole movement
-状态估计部分参考mit源码https://blog.csdn.net/Everlasting_Aa/article/details/120920668
-pd控制与轨迹规划部分参考https://blog.csdn.net/weixin_45728705/article/details/120817881
+
+状态估计部分参考mit源码
+https://blog.csdn.net/Everlasting_Aa/article/details/120920668
+
+pd控制与轨迹规划部分参考
+https://blog.csdn.net/weixin_45728705/article/details/120817881
 
 
 x -> roll
@@ -20,6 +26,7 @@ dependence
 # ros install
 wget http://fishros.com/install -O fishros && . fishros
 ```
+详细配置见[setup](./环境配置.md)
 
 配置完以上依赖后在~/.bashrc后添加，假设workspace是在~/go1_ws下
 ```bash
