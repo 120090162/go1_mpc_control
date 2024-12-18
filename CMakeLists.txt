@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0.2)
+cmake_minimum_required(VERSION 3.10.1...3.23.0)
 project(go1_mpc_control)
 set(CMAKE_BUILD_TYPE "Release")
 set(CMAKE_CXX_FLAGS "-std=c++14")
@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -Wall -g")
 
 add_definitions(-DEIGEN_STACK_ALLOCATION_LIMIT=0)
+# robot_type
+#add_definitions(-DUSE_GO1)
 
 #check environmental variables
 message(STATUS "CMAKE_PREFIX_PATH: ${CMAKE_PREFIX_PATH}")
@@ -77,22 +79,22 @@ target_link_libraries(gazebo_go1_ctrl
 # tests
 # Declare a cpp executable
 
-add_executable(test_rotation src/test/test_rotation.cpp
-  src/utils/utils.cpp
-)
-
-add_executable(test_bezier src/test/test_bezier.cpp
-  src/utils/utils.cpp
-)
-
-add_executable(test_mpc src/test/test_mpc.cpp)
-target_link_libraries(test_mpc
-  go1_lib
-  ${catkin_LIBRARIES}
-  OsqpEigen::OsqpEigen
-)
-
-add_executable(test_unitree_legged_msgs src/test/test_unitree_msgs.cpp)
-target_link_libraries(test_unitree_legged_msgs
-  ${catkin_LIBRARIES}
-)
+# add_executable(test_rotation src/test/test_rotation.cpp
+#   src/utils/utils.cpp
+# )
+# 
+# add_executable(test_bezier src/test/test_bezier.cpp
+#   src/utils/utils.cpp
+# )
+# 
+# add_executable(test_mpc src/test/test_mpc.cpp)
+# target_link_libraries(test_mpc
+#   go1_lib
+#   ${catkin_LIBRARIES}
+#   OsqpEigen::OsqpEigen
+# )
+# 
+# add_executable(test_unitree_legged_msgs src/test/test_unitree_msgs.cpp)
+# target_link_libraries(test_unitree_legged_msgs
+#   ${catkin_LIBRARIES}
+# )

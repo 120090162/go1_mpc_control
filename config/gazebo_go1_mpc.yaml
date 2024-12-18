@@ -3,32 +3,32 @@ stance_leg_control_type: 1 # 0: QP; 1: MPC
 
 # physics parameters
 
-go1_robot_mass: 12.0
+go1_robot_mass: 12.00
 
-go1_trunk_inertia_xx: 0.0158533
+go1_trunk_inertia_xx: 0.0168128557
 go1_trunk_inertia_xy: 0.0
 go1_trunk_inertia_xz: 0.0
 go1_trunk_inertia_yz: 0.0
-go1_trunk_inertia_yy: 0.0377999
-go1_trunk_inertia_zz: 0.0456542
+go1_trunk_inertia_yy: 0.063009565
+go1_trunk_inertia_zz: 0.0716547275
 
 # default foothold position
 
-go1_default_foot_pos_FL_x: 0.17
-go1_default_foot_pos_FL_y: 0.15
-go1_default_foot_pos_FL_z: -0.35
+go1_default_foot_pos_FL_x: 0.1881
+go1_default_foot_pos_FL_y: 0.1300
+go1_default_foot_pos_FL_z: -0.3200
 
-go1_default_foot_pos_FR_x: 0.17
-go1_default_foot_pos_FR_y: -0.15
-go1_default_foot_pos_FR_z: -0.35
+go1_default_foot_pos_FR_x: 0.1881
+go1_default_foot_pos_FR_y: -0.1300
+go1_default_foot_pos_FR_z: -0.3200
 
-go1_default_foot_pos_RL_x: -0.17
-go1_default_foot_pos_RL_y: 0.15
-go1_default_foot_pos_RL_z: -0.35
+go1_default_foot_pos_RL_x: -0.1881
+go1_default_foot_pos_RL_y: 0.1300
+go1_default_foot_pos_RL_z: -0.3200
 
-go1_default_foot_pos_RR_x: -0.17
-go1_default_foot_pos_RR_y: -0.15
-go1_default_foot_pos_RR_z: -0.35
+go1_default_foot_pos_RR_x: -0.1881
+go1_default_foot_pos_RR_y: -0.1300
+go1_default_foot_pos_RR_z: -0.3200
 
 go1_gait_counter_speed_FL: 1.5
 go1_gait_counter_speed_FR: 1.5
@@ -74,8 +74,11 @@ r_weights_11: 1e-7
 # foot swing controller parameters
 # force_tgt = km_foot * kp_foot * foot_pos_error
 
+# go1_kp_foot_x: 200.0
 go1_kp_foot_x: 200.0
+# go1_kp_foot_y: 200.0
 go1_kp_foot_y: 200.0
+# go1_kp_foot_z: 150.0
 go1_kp_foot_z: 150.0
 
 go1_kd_foot_x: 10.0

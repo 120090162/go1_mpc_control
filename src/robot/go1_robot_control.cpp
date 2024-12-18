@@ -350,6 +350,7 @@ Eigen::Matrix<double, 3, NUM_LEG> Go1RobotControl::compute_grf(Go1CtrlStates &st
     Eigen::Vector3d euler_error = state.root_euler_d - state.root_euler;
 
     // limit euler error to pi/2
+    // 限制偏航角误差在-pi/2到pi/2之间
     if (euler_error(2) > PI * 1.5)
     {
         euler_error(2) = state.root_euler_d(2) - PI * 2 - state.root_euler(2);
@@ -375,7 +376,7 @@ Eigen::Matrix<double, 3, NUM_LEG> Go1RobotControl::compute_grf(Go1CtrlStates &st
         {
             terrain_angle = 0;
         }
-
+        // 限制地形角度在-0.5到0.5之间
         if (terrain_angle > 0.5)
         {
             terrain_angle = 0.5;
@@ -386,9 +387,11 @@ Eigen::Matrix<double, 3, NUM_LEG> Go1RobotControl::compute_grf(Go1CtrlStates &st
         }
 
         // FL, FR, RL, RR
+        // 计算前后脚的z轴角度差
         double F_R_diff = state.foot_pos_recent_contact(2, 0) + state.foot_pos_recent_contact(2, 1) - state.foot_pos_recent_contact(2, 2) -
                           state.foot_pos_recent_contact(2, 3);
 
+        // 默认启用地形适应
         if (state.use_terrain_adapt)
         {
             if (F_R_diff > 0.05)
@@ -404,6 +407,7 @@ Eigen::Matrix<double, 3, NUM_LEG> Go1RobotControl::compute_grf(Go1CtrlStates &st
         std_msgs::Float64 terrain_angle_msg;
         terrain_angle_msg.data = terrain_angle * (180 / PI);
         pub_terrain_angle.publish(terrain_angle_msg); // publish in deg
+        // 打印期望的俯仰角
         std::cout << "desire pitch in deg: " << state.root_euler_d[1] * (180 / PI) << std::endl;
         std::cout << "terrain angle: " << terrain_angle << std::endl;
 

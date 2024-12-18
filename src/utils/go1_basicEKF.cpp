@@ -65,7 +65,7 @@ void Go1BasicEKF::init_state(Go1CtrlStates &state)
 
     // set initial estimator value of x
     x.setZero();
-    x.segment<3>(0) = Eigen::Vector3d(0, 0, 0.27); // initial body position
+    x.segment<3>(0) = Eigen::Vector3d(0, 0, 0.09); // initial body position
     for (int i = 0; i < NUM_LEG; ++i)
     {
         Eigen::Vector3d fk_pos = state.foot_pos_rel.block<3, 1>(0, i);
