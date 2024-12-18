@@ -89,3 +89,7 @@ rosrun keyboard_input keyboard_input_node
 roslaunch go1_mpc_control go1_ctrl.launch type:=gazebo solver_type:=mpc
 ```
 其中键盘的 `f` 键用来切换 stand/tort 步态，详细的控制看 `keyboard_input` 的代码
+
+问题：
+Q: VMware虚拟机运行`gazebo`仿真会报类似`VMware: vmw_ ioctl_command error Invalid argument`.
+A: `~/.bashrc`结尾加入`export SVGA_VGPU10=0`.
