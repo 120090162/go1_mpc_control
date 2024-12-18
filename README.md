@@ -60,8 +60,8 @@ Please change the path of `building_editor_models/stairs` to the real path on yo
 ```bash
 # compile
 cd ~/go1_ws
-catkin_make --only-pkg-with-deps unitree_legged_msgs # 避免unitree_legged_msgs报错
-catkin_make -DCATKIN_WHITELIST_PACKAGES=""
+catkin_make
+catkin_make # 避免虚拟机核数不够部分编译不过
 ```
 如果你只想编译一个包
 ```bash
