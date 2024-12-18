@@ -55,6 +55,23 @@ And open the file `unitree_gazebo/worlds/stairs.world`. At the end of the file:
 </include>
 ```
 Please change the path of `building_editor_models/stairs` to the real path on your PC.
+
+并修改 `path-to/unitree_ros/unitree_controller/src/move_publisher.cpp` 中57行开始的 `while` 循环为以下代码:
+```cpp
+while (ros::ok())
+{
+    // model_state_pub.pose.position.x = radius * sin(2 * M_PI * (double)time_ms / period);
+    // model_state_pub.pose.position.y = radius * cos(2 * M_PI * (double)time_ms / period);
+    model_state_pub.pose.position.z = 0.33;
+    // model_state_pub.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0, 0, -2 * M_PI * (double)time_ms / period);
+    model_state_pub.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0, 0, 0);
+
+    move_publisher.publish(model_state_pub);
+    loop_rate.sleep();
+    time_ms += 1;
+}
+```
+
 ```bash
 # compile
 cd ~/go1_ws
@@ -81,8 +98,8 @@ catkin_make -DCATKIN_WHITELIST_PACKAGES=""
 # run gazebo
 roslaunch unitree_gazebo normal.launch rname:=go1 wname:=earth
 # reset robot
-rosrun unitree_controller unitree_move_kinetic # place the robot back to origin
 rosrun unitree_controller unitree_servo  # let the robot stretch legs
+rosrun unitree_controller unitree_move_kinetic # place the robot back to origin
 # 启动键盘控制
 rosrun keyboard_input keyboard_input_node
 # run mpc control
