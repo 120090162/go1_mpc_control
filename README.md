@@ -46,6 +46,7 @@ sudo apt-get install ros-melodic-controller-interface  ros-melodic-gazebo-ros-co
 cd go1_ws/src
 git clone https://github.com/unitreerobotics/unitree_ros.git #暂时不需要sim_to_real的部分
 git clone https://github.com/120090162/go1_mpc_control.git
+git clone https://github.com/120090162/keyboard_input.git
 ```
 And open the file `unitree_gazebo/worlds/stairs.world`. At the end of the file:
 ```bash
@@ -74,8 +75,9 @@ roslaunch unitree_gazebo normal.launch rname:=go1 wname:=earth
 # reset robot
 rosrun unitree_controller unitree_move_kinetic # place the robot back to origin
 rosrun unitree_controller unitree_servo  # let the robot stretch legs
-# 启动手柄驱动控制
-rosrun joy joy_node
+# 启动键盘控制
+rosrun keyboard_input keyboard_input_node
 # run mpc control
 roslaunch go1_mpc_control go1_ctrl.launch type:=gazebo solver_type:=mpc
 ```
+其中键盘的 `f` 键用来切换 stand/tort 步态，详细的控制看 `keyboard_input` 的代码
