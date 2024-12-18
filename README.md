@@ -28,7 +28,7 @@ wget http://fishros.com/install -O fishros && . fishros
 ```
 详细配置见[setup](./环境配置.md)
 
-配置完以上依赖后在`~/.bashrc`后添加
+配置完以上依赖后在`~/.bashrc`最后添加
 ```bash
 # Go1 gazebo
 source /usr/share/gazebo-9/setup.sh
@@ -55,13 +55,18 @@ And open the file `unitree_gazebo/worlds/stairs.world`. At the end of the file:
 </include>
 ```
 Please change the path of `building_editor_models/stairs` to the real path on your PC.
-
-并在编译之前需要去`path-to/unitree_ros/unitree_gazebo/plugin/draw_force_plugin.cc`文件的47，48行将`common::Color`替换为`ignition::math::Color`。
 ```bash
 # compile
 cd ~/go1_ws
 catkin_make
 catkin_make # 避免虚拟机核数不够部分编译不过
+```
+编译完成后在`~/.bashrc`最后添加
+```bash
+source ~/go1_ws/devel/setup.bash
+export ROS_PACKAGE_PATH=~/go1_ws:${ROS_PACKAGE_PATH}
+export GAZEBO_PLUGIN_PATH=~/go1_ws/devel/lib:${GAZEBO_PLUGIN_PATH}
+export LD_LIBRARY_PATH=~/go1_ws/devel/lib:${LD_LIBRARY_PATH}
 ```
 如果你只想编译一个包
 ```bash
