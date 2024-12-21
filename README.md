@@ -44,32 +44,9 @@ sudo apt-get install ros-melodic-controller-interface  ros-melodic-gazebo-ros-co
 ```
 ```bash
 cd go1_ws/src
-git clone --recursive https://github.com/unitreerobotics/unitree_ros.git
+git clone https://github.com/120090162/unitree_ros.git
 git clone https://github.com/120090162/go1_mpc_control.git
 git clone https://github.com/120090162/keyboard_input.git
-```
-And open the file `unitree_gazebo/worlds/stairs.world`. At the end of the file:
-```bash
-<include>
-    <uri>model:///home/unitree/catkin_ws/src/unitree_ros/unitree_gazebo/worlds/building_editor_models/stairs</uri>
-</include>
-```
-Please change the path of `building_editor_models/stairs` to the real path on your PC.
-
-并修改 `path-to/unitree_ros/unitree_controller/src/move_publisher.cpp` 中57行开始的 `while` 循环为以下代码:
-```cpp
-while (ros::ok())
-{
-    // model_state_pub.pose.position.x = radius * sin(2 * M_PI * (double)time_ms / period);
-    // model_state_pub.pose.position.y = radius * cos(2 * M_PI * (double)time_ms / period);
-    model_state_pub.pose.position.z = 0.33;
-    // model_state_pub.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0, 0, -2 * M_PI * (double)time_ms / period);
-    model_state_pub.pose.orientation = tf::createQuaternionMsgFromRollPitchYaw(0, 0, 0);
-
-    move_publisher.publish(model_state_pub);
-    loop_rate.sleep();
-    time_ms += 1;
-}
 ```
 
 ```bash
@@ -108,5 +85,7 @@ roslaunch go1_mpc_control go1_ctrl.launch type:=gazebo solver_type:=mpc
 其中键盘的 `f` 键用来切换 stand/tort 步态，详细的控制看 `keyboard_input` 的代码
 
 问题：
+
 Q: VMware虚拟机运行`gazebo`仿真会报类似`VMware: vmw_ ioctl_command error Invalid argument`.
+
 A: `~/.bashrc`结尾加入`export SVGA_VGPU10=0`.

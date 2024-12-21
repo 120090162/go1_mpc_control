@@ -16,7 +16,7 @@ ENV REFRESH_AT=2024-12-21
 # install necessary dependencies 
 RUN   if [ "x$(nproc)" = "x1" ] ; then export USE_PROC=1 ; \
       else export USE_PROC=$(($(nproc)/2)) ; fi && \
-      apt-get update && apt-get install -y \
+      apt-get update && apt-get install -y --no-install-recommends \
       vim \
       libatlas-base-dev \
       libeigen3-dev \
@@ -45,7 +45,8 @@ RUN rm get-pip.py
 RUN pip --version
 ARG PIP_NO_CACHE_DIR=1
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-RUN pip install pybullet==3.1.7 tensorflow==1.15.4 numpy==1.17.3 scipy
+RUN pip install pybullet==3.1.7 numpy==1.17.3 scipy
+# RUN pip install pybullet==3.1.7 tensorflow==1.15.4 numpy==1.17.3 scipy
 # RUN pip install tensorflow==1.15.4
 # RUN pip install numpy==1.17.3
 # RUN pip install scipy
@@ -53,14 +54,11 @@ RUN pip install pybullet==3.1.7 tensorflow==1.15.4 numpy==1.17.3 scipy
 
 # install cmake 3.20 
 WORKDIR /tmp 
-RUN apt-get -y install wget libtool
-RUN wget https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2.tar.gz
-RUN tar -zxvf cmake-3.20.2.tar.gz
-RUN ls
+RUN apt-get -y install wget libtool && \
+  wget https://github.com/Kitware/CMake/releases/download/v3.20.2/cmake-3.20.2.tar.gz && \
+  tar -zxvf cmake-3.20.2.tar.gz
 WORKDIR /tmp/cmake-3.20.2
-RUN ./bootstrap
-RUN make
-RUN make install
+RUN ./bootstrap && make && make install
 
 # install motion_imitation
 # WORKDIR /root
@@ -85,9 +83,9 @@ RUN git clone --recursive https://github.com/oxfordcontrol/osqp
 WORKDIR /tmp/osqp
 RUN mkdir build 
 WORKDIR /tmp/osqp/build
-RUN cmake -G "Unix Makefiles" ..
-RUN cmake --build .
-RUN cmake --build . --target install
+RUN cmake -G "Unix Makefiles" .. && \
+  cmake --build . && \
+  cmake --build . --target install
 
 # add OSQP-python
 RUN pip install osqp && apt-get install -y ipython
@@ -99,7 +97,7 @@ RUN git clone https://github.com/robotology/osqp-eigen.git
 WORKDIR /tmp/osqp-eigen
 RUN mkdir build 
 WORKDIR /tmp/osqp-eigen/build
-RUN cmake ../ && make && make install
+RUN cmake ../ && make && make install && cd .. && rm -rf build # clean build directory
 # RUN make
 # RUN make install
 # -- Installing: /usr/local/lib/libOsqpEigen.so.0.6.3
@@ -127,8 +125,8 @@ RUN cmake ../ && make && make install
 # make unitree workspace
 ENV SUPPORT_WS=/root/support_files
 ENV UNITREE_WS=/root/unitree_ws
-RUN mkdir -p $SUPPORT_WS 
-RUN mkdir -p $UNITREE_WS/src
+RUN mkdir -p $SUPPORT_WS && \
+  mkdir -p $UNITREE_WS/src
 WORKDIR $UNITREE_WS
 RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash; catkin init;"
 # install unitree sdk dependencies
@@ -140,7 +138,8 @@ RUN git clone https://github.com/lcm-proj/lcm.git && \
     cd build && \
     cmake .. && \
     make -j12 && \
-    make install 
+    make install && \
+    cd .. && rm -rf build # clean build directory
 
 # notice we must use v3.2 
 WORKDIR $SUPPORT_WS
@@ -149,20 +148,21 @@ RUN git clone https://github.com/unitreerobotics/unitree_legged_sdk.git && \
     mkdir build && \
     cd build && \
     cmake .. && \
-    make -j12 
+    make -j12 && \
+    cd .. && rm -rf build # clean build directory
 
-WORKDIR $SUPPORT_WS
-RUN git clone https://github.com/unitreerobotics/aliengo_sdk.git && \
-    cd ${SUPPORT_WS}/aliengo_sdk && \
-    mkdir build && \
-    cd build && \
-    cmake .. && \
-    make -j12     
+# WORKDIR $SUPPORT_WS
+# RUN git clone https://github.com/unitreerobotics/aliengo_sdk.git && \
+#     cd ${SUPPORT_WS}/aliengo_sdk && \
+#     mkdir build && \
+#     cd build && \
+#     cmake .. && \
+#     make -j12     
 
 # install necessary dependencies 
 RUN   if [ "x$(nproc)" = "x1" ] ; then export USE_PROC=1 ; \
       else export USE_PROC=$(($(nproc)/2)) ; fi && \
-      apt-get update && apt-get install -y \
+      apt-get update && apt-get install -y --no-install-recommends \
       ros-${ROS_DISTRO}-ros-control \
       ros-${ROS_DISTRO}-gazebo-ros \
       ros-${ROS_DISTRO}-joy \
@@ -170,7 +170,7 @@ RUN   if [ "x$(nproc)" = "x1" ] ; then export USE_PROC=1 ; \
       ros-${ROS_DISTRO}-robot-state-publisher
 
 WORKDIR $UNITREE_WS/src
-RUN git clone https://github.com/ShuoYangRobotics/unitree_ros.git
+RUN git clone https://github.com/120090162/unitree_ros.git
 WORKDIR $UNITREE_WS
 # there are some non ascii code in this file that prevents docker from catkin build the file
 # RUN perl -pi -e 's/[^[:ascii:]]//g' $UNITREE_WS/src/unitree_ros/unitree_legged_msgs/msg/MotorState.msg 
@@ -179,16 +179,15 @@ ENV UNITREE_SDK_VERSION=3_2
 ENV UNITREE_LEGGED_SDK_PATH=${SUPPORT_WS}/unitree_legged_sdk
 ENV ALIENGO_SDK_PATH=${SUPPORT_WS}/aliengo_sdk
 ENV UNITREE_PLATFORM=amd64
-RUN echo "#unitree config" >> ~/.bashrc
-RUN echo "export export UNITREE_SDK_VERSION=3_2" >> ~/.bashrc
-RUN echo "export UNITREE_LEGGED_SDK_PATH=${SUPPORT_WS}/unitree_legged_sdk" >> ~/.bashrc
-RUN echo "export ALIENGO_SDK_PATH=${SUPPORT_WS}/aliengo_sdk" >> ~/.bashrc
-RUN echo "export UNITREE_PLATFORM=\"amd64\"" >> ~/.bashrc
-RUN echo "source ${UNITREE_WS}/devel/setup.bash" >> ~/.bashrc
+RUN echo "#unitree config" >> ~/.bashrc && \
+  echo "export export UNITREE_SDK_VERSION=3_2" >> ~/.bashrc && \
+  echo "export UNITREE_LEGGED_SDK_PATH=${SUPPORT_WS}/unitree_legged_sdk" >> ~/.bashrc && \
+  echo "export UNITREE_PLATFORM=\"amd64\"" >> ~/.bashrc && \
+  echo "source ${UNITREE_WS}/devel/setup.bash" >> ~/.bashrc && \
 # RUN echo "export ROS_MASTER_URI=http://192.168.123.2:11311;export ROS_IP=192.168.123.2;export ROS_HOSTNAME=192.168.123.2" >> ~/.bashrc
 # compile just unitree ros unitree_legged_msgs
-RUN ls $UNITREE_WS/src/unitree_ros
-RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash; catkin build unitree_legged_msgs;"
+  ls $UNITREE_WS/src/unitree_ros && \
+  /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash; catkin build unitree_legged_msgs;"
 
 
 # https://github.com/JetBrains/clion-remote/blob/master/Dockerfile.remote-cpp-env
@@ -197,7 +196,7 @@ RUN /bin/bash -c "source /opt/ros/${ROS_DISTRO}/setup.bash; catkin build unitree
 RUN DEBIAN_FRONTEND="noninteractive" apt-get update && apt-get -y install tzdata
 
 RUN apt-get update \
-  && apt-get install -y ssh \
+  && apt-get install -y --no-install-recommends ssh \
       build-essential \
       gcc \
       g++ \
@@ -228,8 +227,8 @@ RUN ( \
   && mkdir /run/sshd
 
 # Change the password 'password' to something more secure
-RUN useradd -m user && yes password | passwd user
-RUN echo 'root:password' | chpasswd
+RUN useradd -m user && yes password | passwd user && \
+  echo 'root:password' | chpasswd
 
 CMD ["/usr/sbin/sshd", "-D", "-e", "-f", "/etc/ssh/sshd_config_test_clion"]
 
@@ -239,7 +238,7 @@ RUN echo "export ROS_MASTER_URI=http://localhost:11311;export ROS_IP=localhost;e
 RUN pip install pyyaml
 
 # default use python 2.7, or type this command when docker starts 
-RUN update-alternatives --install /usr/bin/python python /usr/bin/python2.7 3
+# RUN update-alternatives --install /usr/bin/python python /usr/bin/python2.7 3
 
 ### How to build this docker 
 # sudo docker build --build-arg -t="a1_ros_ctrl_image" .
