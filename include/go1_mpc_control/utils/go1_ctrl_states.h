@@ -20,12 +20,12 @@ public:
 		stance_leg_control_type = 1;
 		use_terrain_adapt = 1;
 		movement_mode = 0;
-		counter_per_gait = 120 * 2;
 		counter_per_swing = 120;
+		counter_per_gait = counter_per_swing * 2;
 		counter = 0;
-		gait_counter.setZero();
+		gait_counter.setZero(); // use to keep track of step duration
 		gait_counter_speed.setZero();
-		gait_type = 1;
+		gait_type = 1; // trotting
 		gait_type_last = 1;
 		// init gait counter
 		// TODO: add other gait patterns?
@@ -36,14 +36,14 @@ public:
 		root_lin_vel_d.setZero();
 		root_ang_vel_d.setZero();
 
-		robot_mass = 15.0;
-		go1_trunk_inertia << 0.0158533, 0.0, 0.0,
-			0.0, 0.0377999, 0.0,
-			0.0, 0.0, 0.0456542;
+		robot_mass = 12.0;
+		go1_trunk_inertia << 0.0168128557, 0.0, 0.0,
+			0.0, 0.063009565, 0.0,
+			0.0, 0.0, 0.0716547275;
 		// this initialization is matlab style
-		default_foot_pos << 0.17, 0.17, -0.17, -0.17,
-			0.15, -0.15, 0.15, -0.15,
-			-0.35, -0.35, -0.35, -0.35;
+		default_foot_pos << 0.1881, 0.1881, -0.1881, -0.1881,
+			0.13, -0.13, 0.13, -0.13,
+			-0.32, -0.32, -0.32, -0.32;
 
 		q_weights.resize(13);
 		r_weights.resize(12);
@@ -124,7 +124,7 @@ public:
 		kp_angular = Eigen::Vector3d(650.0, 35.0, 1.0);
 		kd_angular = Eigen::Vector3d(4.5, 4.5, 30.0);
 
-		torques_gravity << 0.80, 0, 0, -0.80, 0, 0, 0.80, 0, 0, -0.80, 0, 0;
+		torques_gravity << -0.66, -0.37, 0.16, 0.66, -0.37, 0.0, -0.66, -0.37, 0.0, 0.66, -0.37, 0.16;
 		joint_torques.setZero();
 
 		power_level = 5;
