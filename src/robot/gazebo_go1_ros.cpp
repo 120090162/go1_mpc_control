@@ -23,7 +23,7 @@ GazeboGo1ROS::GazeboGo1ROS(ros::NodeHandle &_nh)
     pub_joint_cmd[11] = nh.advertise<unitree_legged_msgs::MotorCmd>("/a1_gazebo/RR_calf_controller/command", 1);
 
     // ROS register callback, call backs directly modify variables in Go1CtrlStates
-    sub_imu_msg = nh.subscribe("/trunk_imu", 100, &GazeboGo1ROS::imu_callback, this);
+    sub_gt_pose_msg = nh.subscribe("/torso_odom", 100, &GazeboA1ROS::gt_pose_callback, this);
     sub_imu_msg = nh.subscribe("/trunk_imu", 100, &GazeboA1ROS::imu_callback, this);
 
     sub_joint_msg[0] = nh.subscribe("/a1_gazebo/FL_hip_controller/state", 2, &GazeboGo1ROS::FL_hip_state_callback, this);
