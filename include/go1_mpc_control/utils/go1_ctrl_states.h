@@ -135,7 +135,7 @@ public:
 		_nh.param("stance_leg_control_type", stance_leg_control_type, 1);
 		_nh.param("use_terrain_adapt", use_terrain_adapt, 1);
 
-		_nh.param("go1_robot_mass", robot_mass, 13.0);
+		_nh.param("a1_robot_mass", robot_mass, 13.0);
 
 		double go1_trunk_inertia_xx;
 		double go1_trunk_inertia_xy;
@@ -144,12 +144,12 @@ public:
 		double go1_trunk_inertia_yy;
 		double go1_trunk_inertia_zz;
 
-		_nh.param("go1_trunk_inertia_xx", go1_trunk_inertia_xx, 0.0158533);
-		_nh.param("go1_trunk_inertia_xy", go1_trunk_inertia_xy, 0.0);
-		_nh.param("go1_trunk_inertia_xz", go1_trunk_inertia_xz, 0.0);
-		_nh.param("go1_trunk_inertia_yz", go1_trunk_inertia_yz, 0.0);
-		_nh.param("go1_trunk_inertia_yy", go1_trunk_inertia_yy, 0.0377999);
-		_nh.param("go1_trunk_inertia_zz", go1_trunk_inertia_zz, 0.0456542);
+		_nh.param("a1_trunk_inertia_xx", go1_trunk_inertia_xx, 0.0158533);
+		_nh.param("a1_trunk_inertia_xy", go1_trunk_inertia_xy, 0.0);
+		_nh.param("a1_trunk_inertia_xz", go1_trunk_inertia_xz, 0.0);
+		_nh.param("a1_trunk_inertia_yz", go1_trunk_inertia_yz, 0.0);
+		_nh.param("a1_trunk_inertia_yy", go1_trunk_inertia_yy, 0.0377999);
+		_nh.param("a1_trunk_inertia_zz", go1_trunk_inertia_zz, 0.0456542);
 
 		go1_trunk_inertia << go1_trunk_inertia_xx, go1_trunk_inertia_xy, go1_trunk_inertia_xz,
 			go1_trunk_inertia_xy, go1_trunk_inertia_yy, go1_trunk_inertia_yz,
@@ -171,21 +171,21 @@ public:
 		double go1_default_foot_pos_RR_y;
 		double go1_default_foot_pos_RR_z;
 
-		_nh.param("go1_default_foot_pos_FL_x", go1_default_foot_pos_FL_x, 0.25);
-		_nh.param("go1_default_foot_pos_FL_y", go1_default_foot_pos_FL_y, 0.15);
-		_nh.param("go1_default_foot_pos_FL_z", go1_default_foot_pos_FL_z, -0.33);
+		_nh.param("a1_default_foot_pos_FL_x", go1_default_foot_pos_FL_x, 0.25);
+		_nh.param("a1_default_foot_pos_FL_y", go1_default_foot_pos_FL_y, 0.15);
+		_nh.param("a1_default_foot_pos_FL_z", go1_default_foot_pos_FL_z, -0.33);
 
-		_nh.param("go1_default_foot_pos_FR_x", go1_default_foot_pos_FR_x, 0.25);
-		_nh.param("go1_default_foot_pos_FR_y", go1_default_foot_pos_FR_y, -0.15);
-		_nh.param("go1_default_foot_pos_FR_z", go1_default_foot_pos_FR_z, -0.33);
+		_nh.param("a1_default_foot_pos_FR_x", go1_default_foot_pos_FR_x, 0.25);
+		_nh.param("a1_default_foot_pos_FR_y", go1_default_foot_pos_FR_y, -0.15);
+		_nh.param("a1_default_foot_pos_FR_z", go1_default_foot_pos_FR_z, -0.33);
 
-		_nh.param("go1_default_foot_pos_RL_x", go1_default_foot_pos_RL_x, -0.17);
-		_nh.param("go1_default_foot_pos_RL_y", go1_default_foot_pos_RL_y, 0.15);
-		_nh.param("go1_default_foot_pos_RL_z", go1_default_foot_pos_RL_z, -0.33);
+		_nh.param("a1_default_foot_pos_RL_x", go1_default_foot_pos_RL_x, -0.17);
+		_nh.param("a1_default_foot_pos_RL_y", go1_default_foot_pos_RL_y, 0.15);
+		_nh.param("a1_default_foot_pos_RL_z", go1_default_foot_pos_RL_z, -0.33);
 
-		_nh.param("go1_default_foot_pos_RR_x", go1_default_foot_pos_RR_x, -0.17);
-		_nh.param("go1_default_foot_pos_RR_y", go1_default_foot_pos_RR_y, -0.15);
-		_nh.param("go1_default_foot_pos_RR_z", go1_default_foot_pos_RR_z, -0.33);
+		_nh.param("a1_default_foot_pos_RR_x", go1_default_foot_pos_RR_x, -0.17);
+		_nh.param("a1_default_foot_pos_RR_y", go1_default_foot_pos_RR_y, -0.15);
+		_nh.param("a1_default_foot_pos_RR_z", go1_default_foot_pos_RR_z, -0.33);
 
 		default_foot_pos << go1_default_foot_pos_FL_x, go1_default_foot_pos_FR_x, go1_default_foot_pos_RL_x, go1_default_foot_pos_RR_x,
 			go1_default_foot_pos_FL_y, go1_default_foot_pos_FR_y, go1_default_foot_pos_RL_y, go1_default_foot_pos_RR_y,
@@ -242,17 +242,17 @@ public:
 
 		double go1_kp_foot_x, go1_kp_foot_y, go1_kp_foot_z, go1_kd_foot_x, go1_kd_foot_y, go1_kd_foot_z, go1_km_foot_x, go1_km_foot_y, go1_km_foot_z;
 
-		_nh.param("go1_kp_foot_x", go1_kp_foot_x, 150.0);
-		_nh.param("go1_kp_foot_y", go1_kp_foot_y, 150.0);
-		_nh.param("go1_kp_foot_z", go1_kp_foot_z, 200.0);
+		_nh.param("a1_kp_foot_x", go1_kp_foot_x, 150.0);
+		_nh.param("a1_kp_foot_y", go1_kp_foot_y, 150.0);
+		_nh.param("a1_kp_foot_z", go1_kp_foot_z, 200.0);
 
-		_nh.param("go1_kd_foot_x", go1_kd_foot_x, 0.0);
-		_nh.param("go1_kd_foot_y", go1_kd_foot_y, 0.0);
-		_nh.param("go1_kd_foot_z", go1_kd_foot_z, 0.0);
+		_nh.param("a1_kd_foot_x", go1_kd_foot_x, 0.0);
+		_nh.param("a1_kd_foot_y", go1_kd_foot_y, 0.0);
+		_nh.param("a1_kd_foot_z", go1_kd_foot_z, 0.0);
 
-		_nh.param("go1_km_foot_x", go1_km_foot_x, 0.1);
-		_nh.param("go1_km_foot_y", go1_km_foot_y, 0.1);
-		_nh.param("go1_km_foot_z", go1_km_foot_z, 0.04);
+		_nh.param("a1_km_foot_x", go1_km_foot_x, 0.1);
+		_nh.param("a1_km_foot_y", go1_km_foot_y, 0.1);
+		_nh.param("a1_km_foot_z", go1_km_foot_z, 0.04);
 
 		kp_foot << go1_kp_foot_x, go1_kp_foot_x, go1_kp_foot_x, go1_kp_foot_x,
 			go1_kp_foot_y, go1_kp_foot_y, go1_kp_foot_y, go1_kp_foot_y,
@@ -266,30 +266,30 @@ public:
 		double go1_kp_linear_x;
 		double go1_kp_linear_y;
 		double go1_kp_linear_z;
-		_nh.param("go1_kp_linear_x", go1_kp_linear_x, 120.0);
-		_nh.param("go1_kp_linear_y", go1_kp_linear_y, 120.0);
-		_nh.param("go1_kp_linear_z", go1_kp_linear_z, 500.0);
+		_nh.param("a1_kp_linear_x", go1_kp_linear_x, 120.0);
+		_nh.param("a1_kp_linear_y", go1_kp_linear_y, 120.0);
+		_nh.param("a1_kp_linear_z", go1_kp_linear_z, 500.0);
 
 		double go1_kd_linear_x;
 		double go1_kd_linear_y;
 		double go1_kd_linear_z;
-		_nh.param("go1_kd_linear_x", go1_kd_linear_x, 70.0);
-		_nh.param("go1_kd_linear_y", go1_kd_linear_y, 70.0);
-		_nh.param("go1_kd_linear_z", go1_kd_linear_z, 120.0);
+		_nh.param("a1_kd_linear_x", go1_kd_linear_x, 70.0);
+		_nh.param("a1_kd_linear_y", go1_kd_linear_y, 70.0);
+		_nh.param("a1_kd_linear_z", go1_kd_linear_z, 120.0);
 
 		double go1_kp_angular_x;
 		double go1_kp_angular_y;
 		double go1_kp_angular_z;
-		_nh.param("go1_kp_angular_x", go1_kp_angular_x, 250.0);
-		_nh.param("go1_kp_angular_y", go1_kp_angular_y, 35.0);
-		_nh.param("go1_kp_angular_z", go1_kp_angular_z, 1.0);
+		_nh.param("a1_kp_angular_x", go1_kp_angular_x, 250.0);
+		_nh.param("a1_kp_angular_y", go1_kp_angular_y, 35.0);
+		_nh.param("a1_kp_angular_z", go1_kp_angular_z, 1.0);
 
 		double go1_kd_angular_x;
 		double go1_kd_angular_y;
 		double go1_kd_angular_z;
-		_nh.param("go1_kd_angular_x", go1_kd_angular_x, 1.5);
-		_nh.param("go1_kd_angular_y", go1_kd_angular_y, 1.5);
-		_nh.param("go1_kd_angular_z", go1_kd_angular_z, 30.0);
+		_nh.param("a1_kd_angular_x", go1_kd_angular_x, 1.5);
+		_nh.param("a1_kd_angular_y", go1_kd_angular_y, 1.5);
+		_nh.param("a1_kd_angular_z", go1_kd_angular_z, 30.0);
 
 		kp_linear_lock_x = go1_kp_linear_x;
 		kp_linear_lock_y = go1_kp_linear_y;
@@ -304,16 +304,16 @@ public:
 		double go1_gait_counter_speed_RL;
 		double go1_gait_counter_speed_RR;
 
-		_nh.param("go1_gait_counter_speed_FL", go1_gait_counter_speed_FL, 2.0);
-		_nh.param("go1_gait_counter_speed_FR", go1_gait_counter_speed_FR, 2.0);
-		_nh.param("go1_gait_counter_speed_RL", go1_gait_counter_speed_RL, 2.0);
-		_nh.param("go1_gait_counter_speed_RR", go1_gait_counter_speed_RR, 2.0);
+		_nh.param("a1_gait_counter_speed_FL", go1_gait_counter_speed_FL, 2.0);
+		_nh.param("a1_gait_counter_speed_FR", go1_gait_counter_speed_FR, 2.0);
+		_nh.param("a1_gait_counter_speed_RL", go1_gait_counter_speed_RL, 2.0);
+		_nh.param("a1_gait_counter_speed_RR", go1_gait_counter_speed_RR, 2.0);
 
 		gait_counter_speed
 			<< go1_gait_counter_speed_FL,
 			go1_gait_counter_speed_FR, go1_gait_counter_speed_RL, go1_gait_counter_speed_RR;
 
-		_nh.param("go1_hardware_power_level", power_level, 2);
+		_nh.param("a1_hardware_power_level", power_level, 2);
 	}
 
 	void gait_counter_reset()
