@@ -65,13 +65,25 @@ add_library(gazebo_go1_lib
   src/robot/gazebo_go1_ros.cpp
 )
 
-# all robots depends on the a1_lib
+add_library(hardware_go1_lib
+        src/robot/hardware_go1_ros.cpp
+)
+
+# all robots depends on the go1_lib
 target_link_libraries(gazebo_go1_lib go1_lib)
+target_link_libraries(hardware_go1_lib go1_lib ${EXTRA_LIBS})
 
 # Declare a cpp executable for gazebo robot
-add_executable(gazebo_go1_ctrl src/main.cpp)
+add_executable(gazebo_go1_ctrl src/main_gazebo.cpp)
 target_link_libraries(gazebo_go1_ctrl
   gazebo_go1_lib
+  ${catkin_LIBRARIES}
+  OsqpEigen::OsqpEigen
+)
+
+add_executable(hardware_go1_ctrl src/main_hardware.cpp)
+target_link_libraries(hardware_go1_ctrl
+  hardware_go1_lib
   ${catkin_LIBRARIES}
   OsqpEigen::OsqpEigen
 )

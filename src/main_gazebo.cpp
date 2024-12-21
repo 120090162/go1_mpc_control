@@ -37,7 +37,7 @@ int main(int argc, char **argv)
         }
     }
 
-    // create go1 controller
+    // create Go1 controller
     std::unique_ptr<GazeboGo1ROS> go1 = std::make_unique<GazeboGo1ROS>(nh); // 智能指针自动释放内存
 
     std::atomic<bool> control_execute{}; // 原子变量，用于线程间同步
