@@ -21,7 +21,7 @@
 #include <sensor_msgs/Joy.h>
 #include <sensor_msgs/Imu.h>
 // #include <sensor_msgs/JointState.h>
-// #include <nav_msgs/Odometry.h> // 包含里程计消息
+#include <nav_msgs/Odometry.h> // 包含里程计消息
 // #include <geometry_msgs/TwistStamped.h>              // 包含速度消息
 // #include <geometry_msgs/PoseWithCovarianceStamped.h> // 包含带协方差的位置消息
 // #include <geometry_msgs/PoseArray.h>                 // 包含位置数组消息
@@ -54,6 +54,8 @@ public:
     bool send_cmd(); // send control (joint) command to robot
 
     // callback functions
+    void gt_pose_callback(const nav_msgs::Odometry::ConstPtr &odom);
+
     void imu_callback(const sensor_msgs::Imu::ConstPtr &imu);
 
     void joy_callback(const sensor_msgs::Joy::ConstPtr &joy_msg);

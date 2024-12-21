@@ -24,6 +24,7 @@ GazeboGo1ROS::GazeboGo1ROS(ros::NodeHandle &_nh)
 
     // ROS register callback, call backs directly modify variables in Go1CtrlStates
     sub_imu_msg = nh.subscribe("/trunk_imu", 100, &GazeboGo1ROS::imu_callback, this);
+    sub_imu_msg = nh.subscribe("/trunk_imu", 100, &GazeboA1ROS::imu_callback, this);
 
     sub_joint_msg[0] = nh.subscribe("/a1_gazebo/FL_hip_controller/state", 2, &GazeboGo1ROS::FL_hip_state_callback, this);
     sub_joint_msg[1] = nh.subscribe("/a1_gazebo/FL_thigh_controller/state", 2, &GazeboGo1ROS::FL_thigh_state_callback, this);
@@ -221,27 +222,30 @@ bool GazeboGo1ROS::send_cmd()
 }
 
 // callback functions
-void GazeboGo1ROS::imu_callback(const sensor_msgs::Imu::ConstPtr &imu)
-{
-    go1_ctrl_states.root_quat = Eigen::Quaterniond(quat_w.CalculateAverage(imu->orientation.w),
-                                                   quat_x.CalculateAverage(imu->orientation.x),
-                                                   quat_y.CalculateAverage(imu->orientation.y),
-                                                   quat_z.CalculateAverage(imu->orientation.z));
-    go1_ctrl_states.imu_acc = Eigen::Vector3d(
-        acc_x.CalculateAverage(imu->linear_acceleration.x),
-        acc_y.CalculateAverage(imu->linear_acceleration.y),
-        acc_z.CalculateAverage(imu->linear_acceleration.z));
-    go1_ctrl_states.imu_ang_vel = Eigen::Vector3d(
-        gyro_x.CalculateAverage(imu->angular_velocity.x),
-        gyro_y.CalculateAverage(imu->angular_velocity.y),
-        gyro_z.CalculateAverage(imu->angular_velocity.z));
-    go1_ctrl_states.root_ang_vel = go1_ctrl_states.root_rot_mat * go1_ctrl_states.imu_ang_vel;
+void GazeboA1ROS::gt_pose_callback(const nav_msgs::Odometry::ConstPtr &odom) {
+    // update
+    go1_ctrl_states.root_quat = Eigen::Quaterniond(odom->pose.pose.orientation.w,
+                                                  odom->pose.pose.orientation.x,
+                                                  odom->pose.pose.orientation.y,
+                                                  odom->pose.pose.orientation.z);                                              
+    // go1_ctrl_states.root_pos << odom->pose.pose.position.x,
+    //         odom->pose.pose.position.y,
+    //         odom->pose.pose.position.z;
+    // // make sure root_lin_vel is in world frame
+    // go1_ctrl_states.root_lin_vel << odom->twist.twist.linear.x,
+    //         odom->twist.twist.linear.y,
+    //         odom->twist.twist.linear.z;
+
+    // make sure root_ang_vel is in world frame
+    // go1_ctrl_states.root_ang_vel << odom->twist.twist.angular.x,
+    //         odom->twist.twist.angular.y,
+    //         odom->twist.twist.angular.z;
 
     // calculate several useful variables
     // euler should be roll pitch yaw
     go1_ctrl_states.root_rot_mat = go1_ctrl_states.root_quat.toRotationMatrix();
     go1_ctrl_states.root_euler = Utils::quat_to_euler(go1_ctrl_states.root_quat);
-
+    
     double yaw_angle = go1_ctrl_states.root_euler[2];
     go1_ctrl_states.root_rot_mat_z = Eigen::AngleAxisd(yaw_angle, Eigen::Vector3d::UnitZ());
 
@@ -262,6 +266,23 @@ void GazeboGo1ROS::imu_callback(const sensor_msgs::Imu::ConstPtr &imu)
         go1_ctrl_states.foot_pos_world.block<3, 1>(0, i) = go1_ctrl_states.foot_pos_abs.block<3, 1>(0, i) + go1_ctrl_states.root_pos;
         go1_ctrl_states.foot_vel_world.block<3, 1>(0, i) = go1_ctrl_states.foot_vel_abs.block<3, 1>(0, i) + go1_ctrl_states.root_lin_vel;
     }
+}
+
+void GazeboGo1ROS::imu_callback(const sensor_msgs::Imu::ConstPtr &imu)
+{
+    // go1_ctrl_states.root_quat = Eigen::Quaterniond(quat_w.CalculateAverage(imu->orientation.w),
+    //                                                quat_x.CalculateAverage(imu->orientation.x),
+    //                                                quat_y.CalculateAverage(imu->orientation.y),
+    //                                                quat_z.CalculateAverage(imu->orientation.z));
+    go1_ctrl_states.imu_acc = Eigen::Vector3d(
+        acc_x.CalculateAverage(imu->linear_acceleration.x),
+        acc_y.CalculateAverage(imu->linear_acceleration.y),
+        acc_z.CalculateAverage(imu->linear_acceleration.z));
+    go1_ctrl_states.imu_ang_vel = Eigen::Vector3d(
+        gyro_x.CalculateAverage(imu->angular_velocity.x),
+        gyro_y.CalculateAverage(imu->angular_velocity.y),
+        gyro_z.CalculateAverage(imu->angular_velocity.z));
+    go1_ctrl_states.root_ang_vel = go1_ctrl_states.root_rot_mat * go1_ctrl_states.imu_ang_vel;
 }
 
 // FL
