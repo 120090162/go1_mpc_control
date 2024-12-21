@@ -33,21 +33,21 @@
 #define NUM_DOF 12
 
 // #ifdef USE_GO1
-#define LEG_OFFSET_X 0.1881
-#define LEG_OFFSET_Y 0.04675
-#define MOTOR_OFFSET 0.08
+// #define LEG_OFFSET_X 0.1881
+// #define LEG_OFFSET_Y 0.04675
+// #define MOTOR_OFFSET 0.08
 
-#define UPPER_LEG_LENGTH 0.213
-#define LOWER_LEG_LENGTH 0.213
+// #define UPPER_LEG_LENGTH 0.213
+// #define LOWER_LEG_LENGTH 0.213
 // #endif
 
 // #ifdef USE_A1
-// #define LEG_OFFSET_X 0.1805
-// #define LEG_OFFSET_Y 0.047
-// #define MOTOR_OFFSET 0.0838
+#define LEG_OFFSET_X 0.1805
+#define LEG_OFFSET_Y 0.047
+#define MOTOR_OFFSET 0.0838
 
-// #define UPPER_LEG_LENGTH 0.2
-// #define LOWER_LEG_LENGTH 0.2
+#define UPPER_LEG_LENGTH 0.2
+#define LOWER_LEG_LENGTH 0.2
 // #endif
 
 #define FOOT_FORCE_LOW 30.0

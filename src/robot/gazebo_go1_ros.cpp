@@ -6,40 +6,40 @@ GazeboGo1ROS::GazeboGo1ROS(ros::NodeHandle &_nh)
     nh = _nh;
 
     // ROS publisher
-    pub_joint_cmd[0] = nh.advertise<unitree_legged_msgs::MotorCmd>("/go1_gazebo/FL_hip_controller/command", 1);
-    pub_joint_cmd[1] = nh.advertise<unitree_legged_msgs::MotorCmd>("/go1_gazebo/FL_thigh_controller/command", 1);
-    pub_joint_cmd[2] = nh.advertise<unitree_legged_msgs::MotorCmd>("/go1_gazebo/FL_calf_controller/command", 1);
+    pub_joint_cmd[0] = nh.advertise<unitree_legged_msgs::MotorCmd>("/a1_gazebo/FL_hip_controller/command", 1);
+    pub_joint_cmd[1] = nh.advertise<unitree_legged_msgs::MotorCmd>("/a1_gazebo/FL_thigh_controller/command", 1);
+    pub_joint_cmd[2] = nh.advertise<unitree_legged_msgs::MotorCmd>("/a1_gazebo/FL_calf_controller/command", 1);
 
-    pub_joint_cmd[3] = nh.advertise<unitree_legged_msgs::MotorCmd>("/go1_gazebo/FR_hip_controller/command", 1);
-    pub_joint_cmd[4] = nh.advertise<unitree_legged_msgs::MotorCmd>("/go1_gazebo/FR_thigh_controller/command", 1);
-    pub_joint_cmd[5] = nh.advertise<unitree_legged_msgs::MotorCmd>("/go1_gazebo/FR_calf_controller/command", 1);
+    pub_joint_cmd[3] = nh.advertise<unitree_legged_msgs::MotorCmd>("/a1_gazebo/FR_hip_controller/command", 1);
+    pub_joint_cmd[4] = nh.advertise<unitree_legged_msgs::MotorCmd>("/a1_gazebo/FR_thigh_controller/command", 1);
+    pub_joint_cmd[5] = nh.advertise<unitree_legged_msgs::MotorCmd>("/a1_gazebo/FR_calf_controller/command", 1);
 
-    pub_joint_cmd[6] = nh.advertise<unitree_legged_msgs::MotorCmd>("/go1_gazebo/RL_hip_controller/command", 1);
-    pub_joint_cmd[7] = nh.advertise<unitree_legged_msgs::MotorCmd>("/go1_gazebo/RL_thigh_controller/command", 1);
-    pub_joint_cmd[8] = nh.advertise<unitree_legged_msgs::MotorCmd>("/go1_gazebo/RL_calf_controller/command", 1);
+    pub_joint_cmd[6] = nh.advertise<unitree_legged_msgs::MotorCmd>("/a1_gazebo/RL_hip_controller/command", 1);
+    pub_joint_cmd[7] = nh.advertise<unitree_legged_msgs::MotorCmd>("/a1_gazebo/RL_thigh_controller/command", 1);
+    pub_joint_cmd[8] = nh.advertise<unitree_legged_msgs::MotorCmd>("/a1_gazebo/RL_calf_controller/command", 1);
 
-    pub_joint_cmd[9] = nh.advertise<unitree_legged_msgs::MotorCmd>("/go1_gazebo/RR_hip_controller/command", 1);
-    pub_joint_cmd[10] = nh.advertise<unitree_legged_msgs::MotorCmd>("/go1_gazebo/RR_thigh_controller/command", 1);
-    pub_joint_cmd[11] = nh.advertise<unitree_legged_msgs::MotorCmd>("/go1_gazebo/RR_calf_controller/command", 1);
+    pub_joint_cmd[9] = nh.advertise<unitree_legged_msgs::MotorCmd>("/a1_gazebo/RR_hip_controller/command", 1);
+    pub_joint_cmd[10] = nh.advertise<unitree_legged_msgs::MotorCmd>("/a1_gazebo/RR_thigh_controller/command", 1);
+    pub_joint_cmd[11] = nh.advertise<unitree_legged_msgs::MotorCmd>("/a1_gazebo/RR_calf_controller/command", 1);
 
     // ROS register callback, call backs directly modify variables in Go1CtrlStates
     sub_imu_msg = nh.subscribe("/trunk_imu", 100, &GazeboGo1ROS::imu_callback, this);
 
-    sub_joint_msg[0] = nh.subscribe("/go1_gazebo/FL_hip_controller/state", 2, &GazeboGo1ROS::FL_hip_state_callback, this);
-    sub_joint_msg[1] = nh.subscribe("/go1_gazebo/FL_thigh_controller/state", 2, &GazeboGo1ROS::FL_thigh_state_callback, this);
-    sub_joint_msg[2] = nh.subscribe("/go1_gazebo/FL_calf_controller/state", 2, &GazeboGo1ROS::FL_calf_state_callback, this);
+    sub_joint_msg[0] = nh.subscribe("/a1_gazebo/FL_hip_controller/state", 2, &GazeboGo1ROS::FL_hip_state_callback, this);
+    sub_joint_msg[1] = nh.subscribe("/a1_gazebo/FL_thigh_controller/state", 2, &GazeboGo1ROS::FL_thigh_state_callback, this);
+    sub_joint_msg[2] = nh.subscribe("/a1_gazebo/FL_calf_controller/state", 2, &GazeboGo1ROS::FL_calf_state_callback, this);
 
-    sub_joint_msg[3] = nh.subscribe("/go1_gazebo/FR_hip_controller/state", 2, &GazeboGo1ROS::FR_hip_state_callback, this);
-    sub_joint_msg[4] = nh.subscribe("/go1_gazebo/FR_thigh_controller/state", 2, &GazeboGo1ROS::FR_thigh_state_callback, this);
-    sub_joint_msg[5] = nh.subscribe("/go1_gazebo/FR_calf_controller/state", 2, &GazeboGo1ROS::FR_calf_state_callback, this);
+    sub_joint_msg[3] = nh.subscribe("/a1_gazebo/FR_hip_controller/state", 2, &GazeboGo1ROS::FR_hip_state_callback, this);
+    sub_joint_msg[4] = nh.subscribe("/a1_gazebo/FR_thigh_controller/state", 2, &GazeboGo1ROS::FR_thigh_state_callback, this);
+    sub_joint_msg[5] = nh.subscribe("/a1_gazebo/FR_calf_controller/state", 2, &GazeboGo1ROS::FR_calf_state_callback, this);
 
-    sub_joint_msg[6] = nh.subscribe("/go1_gazebo/RL_hip_controller/state", 2, &GazeboGo1ROS::RL_hip_state_callback, this);
-    sub_joint_msg[7] = nh.subscribe("/go1_gazebo/RL_thigh_controller/state", 2, &GazeboGo1ROS::RL_thigh_state_callback, this);
-    sub_joint_msg[8] = nh.subscribe("/go1_gazebo/RL_calf_controller/state", 2, &GazeboGo1ROS::RL_calf_state_callback, this);
+    sub_joint_msg[6] = nh.subscribe("/a1_gazebo/RL_hip_controller/state", 2, &GazeboGo1ROS::RL_hip_state_callback, this);
+    sub_joint_msg[7] = nh.subscribe("/a1_gazebo/RL_thigh_controller/state", 2, &GazeboGo1ROS::RL_thigh_state_callback, this);
+    sub_joint_msg[8] = nh.subscribe("/a1_gazebo/RL_calf_controller/state", 2, &GazeboGo1ROS::RL_calf_state_callback, this);
 
-    sub_joint_msg[9] = nh.subscribe("/go1_gazebo/RR_hip_controller/state", 2, &GazeboGo1ROS::RR_hip_state_callback, this);
-    sub_joint_msg[10] = nh.subscribe("/go1_gazebo/RR_thigh_controller/state", 2, &GazeboGo1ROS::RR_thigh_state_callback, this);
-    sub_joint_msg[11] = nh.subscribe("/go1_gazebo/RR_calf_controller/state", 2, &GazeboGo1ROS::RR_calf_state_callback, this);
+    sub_joint_msg[9] = nh.subscribe("/a1_gazebo/RR_hip_controller/state", 2, &GazeboGo1ROS::RR_hip_state_callback, this);
+    sub_joint_msg[10] = nh.subscribe("/a1_gazebo/RR_thigh_controller/state", 2, &GazeboGo1ROS::RR_thigh_state_callback, this);
+    sub_joint_msg[11] = nh.subscribe("/a1_gazebo/RR_calf_controller/state", 2, &GazeboGo1ROS::RR_calf_state_callback, this);
 
     sub_foot_contact_msg[0] = nh.subscribe("/visual/FL_foot_contact/the_force", 2, &GazeboGo1ROS::FL_foot_contact_callback, this);
     sub_foot_contact_msg[1] = nh.subscribe("/visual/FR_foot_contact/the_force", 2, &GazeboGo1ROS::FR_foot_contact_callback, this);

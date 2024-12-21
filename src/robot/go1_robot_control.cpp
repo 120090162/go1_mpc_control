@@ -67,16 +67,16 @@ Go1RobotControl::Go1RobotControl(ros::NodeHandle &_nh) : Go1RobotControl()
     for (int i = 0; i < NUM_LEG; ++i)
     {
         std::string id = std::to_string(i);
-        std::string start_topic = "/gazebo_go1/foot" + id + "/start_pos";
-        std::string end_topic = "/gazebo_go1/foot" + id + "/end_pos";
-        std::string path_topic = "/gazebo_go1/foot" + id + "/swing_path";
+        std::string start_topic = "/gazebo_a1/foot" + id + "/start_pos";
+        std::string end_topic = "/gazebo_a1/foot" + id + "/end_pos";
+        std::string path_topic = "/gazebo_a1/foot" + id + "/swing_path";
 
         pub_foot_start[i] = nh.advertise<visualization_msgs::Marker>(start_topic, 100);
         pub_foot_end[i] = nh.advertise<visualization_msgs::Marker>(end_topic, 100);
         pub_foot_path[i] = nh.advertise<visualization_msgs::Marker>(path_topic, 100);
 
         // set basic info of markers
-        foot_start_marker[i].header.frame_id = "go1_world";
+        foot_start_marker[i].header.frame_id = "a1_world";
         foot_start_marker[i].ns = "basic_shapes";
         foot_start_marker[i].id = 10 + i;
         foot_start_marker[i].type = visualization_msgs::Marker::CYLINDER;
@@ -98,7 +98,7 @@ Go1RobotControl::Go1RobotControl(ros::NodeHandle &_nh) : Go1RobotControl()
 
         foot_end_marker[i].lifetime = ros::Duration();
 
-        foot_end_marker[i].header.frame_id = "go1_world";
+        foot_end_marker[i].header.frame_id = "a1_world";
         foot_end_marker[i].ns = "basic_shapes";
         foot_end_marker[i].id = 20 + i;
         foot_end_marker[i].type = visualization_msgs::Marker::CYLINDER;
@@ -120,7 +120,7 @@ Go1RobotControl::Go1RobotControl(ros::NodeHandle &_nh) : Go1RobotControl()
 
         foot_end_marker[i].lifetime = ros::Duration();
 
-        foot_path_marker[i].header.frame_id = "go1_world";
+        foot_path_marker[i].header.frame_id = "a1_world";
         foot_path_marker[i].ns = "basic_shapes";
         foot_path_marker[i].id = 30 + i;
         foot_path_marker[i].type = visualization_msgs::Marker::LINE_STRIP;
@@ -146,7 +146,7 @@ Go1RobotControl::Go1RobotControl(ros::NodeHandle &_nh) : Go1RobotControl()
 
         foot_path_marker[i].lifetime = ros::Duration();
     }
-    pub_terrain_angle = nh.advertise<std_msgs::Float64>("go1_debug/terrain_angle", 100);
+    pub_terrain_angle = nh.advertise<std_msgs::Float64>("a1_debug/terrain_angle", 100);
 }
 
 void Go1RobotControl::update_plan(Go1CtrlStates &state, double dt)
